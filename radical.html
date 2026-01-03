@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國小二年級 - 快樂學習樂園</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap');
+
+        :root {
+            --primary: #FF9AA2;
+            --secondary: #B5EAD7;
+            --accent: #FFDAC1;
+            --text: #6B5B95;
+            --bg: #F7F0F5;
+            --card-bg: #ffffff;
+            --math-color: #74b9ff; /* 數學科目的代表色 */
+        }
+
+        body {
+            font-family: 'Zen Maru Gothic', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.5s;
+        }
+
+        /* 數學模式的配色覆寫 */
+        body.math-mode {
+            --primary: #74b9ff;
+            --secondary: #fab1a0;
+            --accent: #ffeaa7;
+            --bg: #e0f7fa;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-shadow: 2px 2px 0px #fff;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .subject-switch {
+            background: var(--text);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        .subject-switch:active { transform: translateY(2px); box-shadow: none; }
+
+        .coin-display {
+            background: #FFD700;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 50px;
+            box-shadow: 0 2px 0 #DAA520;
+        }
+
+        .menu-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 90%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .menu-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            color: var(--text);
+            padding: 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .menu-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+
+        .game-stage {
+            background: white;
+            padding: 20px;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(107, 91, 149, 0.1);
+            width: 90%;
+            max-width: 600px;
+            min-height: 350px;
+            text-align: center;
+            position: relative;
+            border: 5px solid white;
+        }
+
+        /* 題型樣式 */
+        .quiz-card { background: var(--accent); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .quiz-text { font-size: 1.8em; color: #444; font-weight: bold; line-height: 1.4; }
+        .quiz-hint { font-size: 1em; color: #666; margin-bottom: 10px; }
+        
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option-btn { background: var(--secondary); border: none; padding: 15px; font-size: 1.2em; border-radius: 15px; cursor: pointer; color: #444; box-shadow: 0 4px 0 rgba(0,0,0,0.1); font-weight: bold; transition: transform 0.1s; }
+        .option-btn:active { transform: translateY(4px); box-shadow: none; }
+
+        .match-container { display: flex; justify-content: space-between; gap: 15px; }
+        .match-col { display: flex; flex-direction: column; gap: 15px; flex: 1; }
+        .match-item { background: #eee; padding: 15px; border-radius: 10px; font-size: 1.2em; cursor: pointer; border: 3px solid transparent; transition: all 0.3s; word-break: break-word; }
+        .match-item.selected { border-color: var(--primary); background: #FFF0F1; transform: scale(1.05); }
+        .match-item.matched { visibility: hidden; opacity: 0; pointer-events: none; }
+
+        .sort-target { font-size: 1.5em; background: var(--primary); color: white; padding: 15px; border-radius: 20px; width: 80%; margin: 0 auto 20px auto; box-shadow: 0 5px 0 rgba(0,0,0,0.2); }
+        .sort-options { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .sort-word { font-size: 1.5em; background: white; border: 2px solid var(--secondary); padding: 10px 20px; border-radius: 15px; cursor: pointer; box-shadow: 0 4px 0 #eee; }
+
+        /* 扭蛋與收藏 */
+        .gacha-section { width: 90%; max-width: 600px; margin-top: 20px; text-align: center; }
+        .gacha-btn { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.2em; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 100%; }
+        .gacha-btn:disabled { background: #ddd; cursor: not-allowed; box-shadow: none; }
+        
+        .collection-area { margin-top: 20px; background: rgba(255,255,255,0.6); border-radius: 20px; padding: 20px; min-height: 100px; }
+        .stickers-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .sticker { font-size: 2.5em; width: 60px; height: 60px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 5px rgba(0,0,0,0.1); animation: popIn 0.5s; }
+
+        @keyframes popIn { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .feedback { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 15px; font-size: 1.5em; pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 100; text-align: center; width: 80%; }
+        .correct { background: #51CF66 !important; color: white; }
+        .wrong { background: #FF6B6B !important; color: white; animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+        
+        #loading { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 999; font-size: 1.5em; color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div id="loading">📚 正在準備書包...</div>
+
+    <h1 id="gameTitle">🎈 快樂學習樂園 🎈</h1>
+
+    <div class="header-bar">
+        <button class="subject-switch" onclick="toggleSubject()">📖 切換科目: 國語</button>
+        <div class="coin-display">💰 <span id="coins">0</span></div>
+    </div>
+
+    <div class="menu-container">
+        <button class="menu-btn active" onclick="setMode('quiz')">1. 扭蛋機 (選擇)</button>
+        <button class="menu-btn" onclick="setMode('match')">2. 連連看 (配對)</button>
+        <button class="menu-btn" onclick="setMode('sort')">3. 抓抓樂 (分類)</button>
+    </div>
+
+    <div class="game-stage" id="gameStage">
+        </div>
+
+    <div class="gacha-section">
+        <button id="gachaBtn" class="gacha-btn" onclick="playGacha()" disabled>
+            🎁 累積 50 金幣抽獎
+        </button>
+        <div class="collection-area">
+            <div style="margin-bottom: 10px; color: #888;">我的貼紙簿 (<span id="collectCount">0</span>)</div>
+            <div class="stickers-grid" id="stickers"></div>
+        </div>
+        <button onclick="resetData()" style="margin-top: 20px; background:none; border:none; color:#aaa; font-size:0.8em; cursor:pointer;">重置進度</button>
+    </div>
+
+    <div id="feedback" class="feedback"></div>
+
+    <script>
+        // --- 全域變數 ---
+        let rawData = {}; // 存放原始 json
+        let currentSubject = 'chinese'; // 'chinese' or 'math'
+        let currentQuestions = []; // 當前科目的題庫
+        let prizes = [];
+        
+        // 國語部首混淆池
+        const radicalPool = ["水", "火", "木", "人", "口", "心", "手", "言", "糸", "肉", "宀", "艹", "竹", "金", "女", "虫", "土", "日"];
+        
+        let state = {
+            coins: 0,
+            collection: [],
+            currentMode: 'quiz'
+        };
+
+        const stageEl = document.getElementById('gameStage');
+        const feedbackEl = document.getElementById('feedback');
+        const coinsEl = document.getElementById('coins');
+        const gachaBtn = document.getElementById('gachaBtn');
+        const menuBtns = document.querySelectorAll('.menu-btn');
+        const loadingEl = document.getElementById('loading');
+        const switchBtn = document.querySelector('.subject-switch');
+        const titleEl = document.getElementById('gameTitle');
+
+        // --- 1. 初始化 ---
+        async function init() {
+            try {
+                const response = await fetch('./data.json');
+                if (!response.ok) throw new Error("找不到 data.json");
+                
+                rawData = await response.json();
+                prizes = rawData.prizes;
+
+                // 讀取存檔
+                loadData();
+                
+                // 設定預設科目
+                setSubject('chinese');
+                
+                loadingEl.style.display = 'none';
+            } catch (error) {
+                loadingEl.innerText = "讀取失敗！請確認 data.json 存在且使用 Live Server 開啟。";
+                console.error(error);
+            }
+        }
+
+        // --- 2. 科目切換 ---
+        function toggleSubject() {
+            setSubject(currentSubject === 'chinese' ? 'math' : 'chinese');
+        }
+
+        function setSubject(subj) {
+            currentSubject = subj;
+            
+            if (subj === 'chinese') {
+                document.body.classList.remove('math-mode');
+                switchBtn.innerText = "📖 科目: 國語";
+                titleEl.innerText = "🎈 國語部首樂園 🎈";
+                currentQuestions = rawData.chinese;
+            } else {
+                document.body.classList.add('math-mode');
+                switchBtn.innerText = "🧮 科目: 數學";
+                titleEl.innerText = "📐 數學挑戰王 📐";
+                currentQuestions = rawData.math;
+            }
+            
+            // 重置遊戲模式
+            setMode(state.currentMode);
+        }
+
+        // --- 3. 模式切換 ---
+        function setMode(mode) {
+            state.currentMode = mode;
+            menuBtns.forEach(btn => btn.classList.remove('active'));
+            
+            if(mode === 'quiz') menuBtns[0].classList.add('active');
+            if(mode === 'match') menuBtns[1].classList.add('active');
+            if(mode === 'sort') menuBtns[2].classList.add('active');
+            
+            renderGame();
+        }
+
+        function renderGame() {
+            stageEl.innerHTML = ''; // 清空舞台
+            
+            if (state.currentMode === 'quiz') renderQuiz();
+            else if (state.currentMode === 'match') renderMatch();
+            else if (state.currentMode === 'sort') renderSort();
+        }
+
+        // --- 4. 遊戲模式：扭蛋機 (選擇) ---
+        function renderQuiz() {
+            stageEl.innerHTML = ''; 
+            const item = getRandomItem();
+            
+            let cardContent, correctAnswer;
+            let options = [];
+
+            if (currentSubject === 'chinese') {
+                // 國語模式
+                cardContent = `<div class="quiz-hint">請問這個字的部首是什麼？</div><div class="quiz-text" style="font-size:5em">${item.word}</div>`;
+                correctAnswer = item.radical;
+                options = [correctAnswer];
+                while(options.length < 4) {
+                    let r = radicalPool[Math.floor(Math.random() * radicalPool.length)];
+                    if(!options.includes(r)) options.push(r);
+                }
+            } else {
+                // 數學模式
+                cardContent = `<div class="quiz-hint">請算出正確答案：</div><div class="quiz-text">${item.q}</div>`;
+                correctAnswer = item.a;
+                options = [correctAnswer];
+                // 產生數學混淆項 (如果是數字，產生接近的；如果是文字，隨機取其他答案)
+                let isNum = !isNaN(correctAnswer);
+                let attempts = 0;
+                while(options.length < 4 && attempts < 50) {
+                    let wrong;
+                    if(isNum) {
+                        let num = parseInt(correctAnswer);
+                        wrong = (num + Math.floor(Math.random() * 20) - 10).toString();
+                        if (wrong <= 0) wrong = Math.floor(Math.random() * 10) + 1;
+                    } else {
+                        wrong = getRandomItem().a;
+                    }
+                    if(!options.includes(wrong) && wrong !== correctAnswer) options.push(wrong);
+                    attempts++;
+                }
+            }
+            
+            options.sort(() => Math.random() - 0.5);
+
+            const card = document.createElement('div');
+            card.className = 'quiz-card';
+            card.innerHTML = cardContent;
+            
+            const grid = document.createElement('div');
+            grid.className = 'options-grid';
+            
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkQuizAnswer(opt, correctAnswer, btn);
+                grid.appendChild(btn);
+            });
+
+            stageEl.appendChild(card);
+            stageEl.appendChild(grid);
+        }
+
+        function checkQuizAnswer(selected, correct, btn) {
+            if (selected == correct) { // 使用 == 允許字串/數字比較
+                btn.classList.add('correct');
+                showFeedback('⭕ 答對了！ +10 金幣');
+                addCoins(10);
+                setTimeout(renderQuiz, 1000);
+            } else {
+                btn.classList.add('wrong');
+                showFeedback('❌ 再想一想');
+                setTimeout(() => btn.classList.remove('wrong'), 500);
+            }
+        }
+
+        // --- 5. 遊戲模式：連連看 (Match) ---
+        let selectedLeft = null;
+        let selectedRight = null;
+
+        function renderMatch() {
+            stageEl.innerHTML = '';
+            
+            // 取4個題目
+            const pairs = [...currentQuestions].sort(() => Math.random() - 0.5).slice(0, 4);
+            
+            const container = document.createElement('div');
+            container.className = 'match-container';
+
+            const colLeft = document.createElement('div');
+            colLeft.className = 'match-col';
+            
+            const colRight = document.createElement('div');
+            colRight.className = 'match-col';
+
+            // 準備資料
+            let leftItems = [], rightItems = [];
+            
+            if (currentSubject === 'chinese') {
+                leftItems = pairs.map((p, i) => ({ text: p.word, id: i }));
+                rightItems = pairs.map((p, i) => ({ text: p.radical, id: i }));
+            } else {
+                leftItems = pairs.map((p, i) => ({ text: p.q, id: i }));
+                rightItems = pairs.map((p, i) => ({ text: p.a, id: i }));
+            }
+
+            // 打亂右邊
+            rightItems.sort(() => Math.random() - 0.5);
+
+            // 渲染左邊
+            leftItems.forEach(item => {
+                const div = createMatchItem(item.text, item.id, 'left');
+                colLeft.appendChild(div);
+            });
+
+            // 渲染右邊
+            rightItems.forEach(item => {
+                const div = createMatchItem(item.text, item.id, 'right');
+                colRight.appendChild(div);
+            });
+
+            container.appendChild(colLeft);
+            container.appendChild(colRight);
+            stageEl.appendChild(container);
+            
+            const hint = document.createElement('div');
+            hint.innerText = "💡 點選左邊的題目，再點選右邊的答案";
+            hint.style.marginTop = "20px";
+            hint.style.color = "#888";
+            stageEl.appendChild(hint);
+        }
+
+        function createMatchItem(text, id, side) {
+            const div = document.createElement('div');
+            div.className = 'match-item';
+            div.innerText = text;
+            div.dataset.id = id;
+            div.dataset.side = side;
+            div.onclick = (e) => handleMatchClick(e, side, id);
+            return div;
+        }
+
+        function handleMatchClick(e, side, id) {
+            // 清除同側選取
+            document.querySelectorAll(`.match-item[data-side="${side}"]`).forEach(el => el.classList.remove('selected'));
+            e.target.classList.add('selected');
+
+            if (side === 'left') selectedLeft = { el: e.target, id: id };
+            if (side === 'right') selectedRight = { el: e.target, id: id };
+
+            if (selectedLeft && selectedRight) {
+                if (selectedLeft.id === selectedRight.id) {
+                    showFeedback('✨ 配對成功！ +15 金幣');
+                    addCoins(15);
+                    selectedLeft.el.classList.add('matched');
+                    selectedRight.el.classList.add('matched');
+                    selectedLeft = null;
+                    selectedRight = null;
+                    
+                    if (document.querySelectorAll('.matched').length === 8) {
+                        setTimeout(renderMatch, 1000);
+                    }
+                } else {
+                    showFeedback('❌ 不對喔');
+                    selectedLeft.el.classList.add('wrong');
+                    selectedRight.el.classList.add('wrong');
+                    setTimeout(() => {
+                        if(selectedLeft) selectedLeft.el.classList.remove('wrong', 'selected');
+                        if(selectedRight) selectedRight.el.classList.remove('wrong', 'selected');
+                        selectedLeft = null;
+                        selectedRight = null;
+                    }, 500);
+                }
+            }
+        }
+
+        // --- 6. 遊戲模式：抓抓樂 (Sort) ---
+        function renderSort() {
+            stageEl.innerHTML = '';
+
+            let targetCategory;
+            let correctItems = [];
+            let options = [];
+
+            if (currentSubject === 'chinese') {
+                // 國語邏輯：找部首
+                let attempts = 0;
+                while(correctItems.length < 1 && attempts < 100) {
+                    const rItem = getRandomItem();
+                    targetCategory = rItem.radical;
+                    correctItems = currentQuestions.filter(i => i.radical === targetCategory);
+                    attempts++;
+                }
+                // 錯誤選項：不同部首的字
+                let wrongPool = currentQuestions.filter(i => i.radical !== targetCategory);
+                options = [...correctItems.slice(0, 2).map(i => ({txt: i.word, isCorrect: true})), 
+                           ...wrongPool.sort(()=>Math.random()-0.5).slice(0, 4).map(i => ({txt: i.word, isCorrect: false}))];
+                
+                showSortUI(`找出「${targetCategory}」部的字`, options);
+
+            } else {
+                // 數學邏輯
+                // 1. 找乘法表 (例如: 找出 9 的乘法)
+                // 2. 找答案大小 (例如: 找出比 40 大的)
+                const mode = Math.random() > 0.5 ? 'multiplication' : 'value';
+                
+                if (mode === 'multiplication') {
+                    // 找出某數的乘法
+                    // 從現有題目中找一個乘法分類
+                    let multQuestions = currentQuestions.filter(q => q.q.includes('×') || q.q.includes('倍'));
+                    if (multQuestions.length > 0) {
+                         let sample = multQuestions[Math.floor(Math.random()*multQuestions.length)];
+                         // 嘗試從題目敘述提取數字，例如 "9 × 4" -> 9
+                         let targetNum = sample.q.match(/\d+/); 
+                         if(targetNum) {
+                             targetNum = targetNum[0];
+                             targetCategory = `${targetNum} 的乘法/倍數`;
+                             
+                             // 篩選
+                             correctItems = multQuestions.filter(i => i.q.includes(targetNum));
+                             let wrongItems = multQuestions.filter(i => !i.q.includes(targetNum));
+                             
+                             if(correctItems.length > 0) {
+                                 options = [...correctItems.slice(0,2).map(i=>({txt: i.q, isCorrect: true})),
+                                            ...wrongItems.slice(0,4).map(i=>({txt: i.q, isCorrect: false}))];
+                                 showSortUI(`找出屬於「${targetCategory}」的題目`, options);
+                                 return;
+                             }
+                         }
+                    }
+                }
+                
+                // 如果上面失敗或隨機到 value 模式：比大小
+                let threshold = 30 + Math.floor(Math.random() * 30); // 30~60
+                let isGreater = Math.random() > 0.5;
+                targetCategory = `答案 ${isGreater ? '大於' : '小於'} ${threshold}`;
+                
+                // 篩選題目 (只找答案是數字的)
+                let numQuestions = currentQuestions.filter(i => !isNaN(i.a));
+                
+                correctItems = numQuestions.filter(i => isGreater ? parseInt(i.a) > threshold : parseInt(i.a) < threshold);
+                let wrongItems = numQuestions.filter(i => isGreater ? parseInt(i.a) <= threshold : parseInt(i.a) >= threshold);
+                
+                if (correctItems.length < 2) { renderSort(); return; } // 重試
+
+                options = [...correctItems.slice(0, 2).map(i => ({txt: i.q, isCorrect: true})), 
+                           ...wrongItems.slice(0, 4).map(i => ({txt: i.q, isCorrect: false}))];
+                
+                showSortUI(`找出 ${targetCategory} 的算式`, options);
+            }
+        }
+
+        function showSortUI(title, options) {
+            const targetDiv = document.createElement('div');
+            targetDiv.className = 'sort-target';
+            targetDiv.innerText = title;
+            
+            options.sort(() => Math.random() - 0.5);
+
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'sort-options';
+            
+            options.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'sort-word';
+                btn.innerText = item.txt;
+                btn.onclick = () => {
+                    if (item.isCorrect) {
+                        btn.style.visibility = 'hidden';
+                        showFeedback('👍 抓到了！ +5 金幣');
+                        addCoins(5);
+                        
+                        // 檢查是否抓完
+                        const remaining = Array.from(optionsDiv.children).filter((child, idx) => {
+                             // 找出原始 options 對應的 isCorrect (這裡簡化，直接檢查 hidden)
+                             return child.style.visibility !== 'hidden' && options[idx].isCorrect; 
+                        });
+                        
+                        // 這裡比較複雜因為 DOM 順序沒變但 options 陣列順序對應...
+                        // 簡單解法：算畫面上還有幾個是正確答案的文字
+                        let visibleCorrects = 0;
+                        Array.from(optionsDiv.children).forEach(child => {
+                            if(child.style.visibility !== 'hidden') {
+                                let txt = child.innerText;
+                                if(options.find(o => o.txt === txt && o.isCorrect)) visibleCorrects++;
+                            }
+                        });
+
+                        if (visibleCorrects === 0) {
+                            setTimeout(renderSort, 1000);
+                        }
+                    } else {
+                        btn.classList.add('wrong');
+                        setTimeout(() => btn.classList.remove('wrong'), 500);
+                    }
+                };
+                optionsDiv.appendChild(btn);
+            });
+
+            stageEl.appendChild(targetDiv);
+            stageEl.appendChild(optionsDiv);
+        }
+
+        // --- 工具函式 ---
+        function getRandomItem() {
+            return currentQuestions[Math.floor(Math.random() * currentQuestions.length)];
+        }
+
+        function showFeedback(text) {
+            feedbackEl.innerText = text;
+            feedbackEl.style.opacity = 1;
+            setTimeout(() => feedbackEl.style.opacity = 0, 1000);
+        }
+
+        function addCoins(amount) {
+            state.coins += amount;
+            updateUI();
+            saveData();
+        }
+
+        function updateUI() {
+            coinsEl.innerText = state.coins;
+            document.getElementById('collectCount').innerText = state.collection.length;
+            
+            if (state.coins >= 50) {
+                gachaBtn.disabled = false;
+                gachaBtn.innerText = "🎁 點我扭蛋！ (-50 金幣)";
+            } else {
+                gachaBtn.disabled = true;
+                gachaBtn.innerText = `🔒 50 金幣抽獎 (目前 ${state.coins})`;
+            }
+        }
+
+        function playGacha() {
+            if (state.coins < 50) return;
+            state.coins -= 50;
+            const prize = prizes[Math.floor(Math.random() * prizes.length)];
+            state.collection.push(prize);
+            
+            addStickerToDom(prize);
+            showFeedback(`🎉 獲得：${prize}`);
+            updateUI();
+            saveData();
+        }
+
+        function addStickerToDom(icon) {
+            const div = document.createElement('div');
+            div.className = 'sticker';
+            div.innerText = icon;
+            document.getElementById('stickers').appendChild(div);
+        }
+
+        function saveData() { localStorage.setItem('kidsGameSave', JSON.stringify(state)); }
+        function loadData() {
+            const saved = localStorage.getItem('kidsGameSave');
+            if (saved) {
+                state = JSON.parse(saved);
+                state.collection.forEach(s => addStickerToDom(s));
+            }
+        }
+        function resetData() {
+            if(confirm("確定要清除所有金幣和貼紙重來嗎？")) {
+                localStorage.removeItem('kidsGameSave');
+                location.reload();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
